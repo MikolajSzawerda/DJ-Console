@@ -1,22 +1,31 @@
 cmake_minimum_required(VERSION 3.26)
-project(dj_poc)
+project(NoiseGen VERSION 0.1)
 
 set(CMAKE_CXX_STANDARD 23)
 
 add_subdirectory(JUCE)
-add_executable(dj_console main.cpp
-        SineWaveGenerator.h)
 
-target_link_libraries(dj_console PRIVATE
-        juce::juce_core
+juce_add_gui_app(noise_gen)
+target_sources(noise_gen
+        PRIVATE
+        NoiseGenerator.h NoiseGenerator.cpp)
+target_link_libraries(noise_gen
+        PRIVATE
         juce::juce_audio_basics
         juce::juce_audio_devices
         juce::juce_audio_formats
+        juce::juce_audio_processors
         juce::juce_audio_utils
+        juce::juce_core
+        juce::juce_data_structures
+        juce::juce_events
+        juce::juce_graphics
+        juce::juce_gui_basics
+        juce::juce_gui_extra
 )
+juce_generate_juce_header(noise_gen)
 
-# Set JUCE-specific definitions and options
-target_compile_definitions(dj_console PRIVATE
-        JUCE_WEB_BROWSER=0 # Disable the JUCE web browser component
-        JUCE_USE_CURL=0    # Disable JUCE's use of CURL
-)
+target_compile_definitions(noise_gen
+        PRIVATE
+        JUCE_WEB_BROWSER=0
+        JUCE_USE_CURL=0)
