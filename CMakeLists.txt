@@ -4,10 +4,10 @@ project(dj_poc)
 set(CMAKE_CXX_STANDARD 23)
 
 add_subdirectory(JUCE)
-add_executable(dj_poc main.cpp
+add_executable(dj_console main.cpp
         SineWaveGenerator.h)
 
-target_link_libraries(dj_poc PRIVATE
+target_link_libraries(dj_console PRIVATE
         juce::juce_core
         juce::juce_audio_basics
         juce::juce_audio_devices
@@ -16,7 +16,7 @@ target_link_libraries(dj_poc PRIVATE
 )
 
 # Set JUCE-specific definitions and options
-target_compile_definitions(dj_poc PRIVATE
+target_compile_definitions(dj_console PRIVATE
         JUCE_WEB_BROWSER=0 # Disable the JUCE web browser component
         JUCE_USE_CURL=0    # Disable JUCE's use of CURL
 )
