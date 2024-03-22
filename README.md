@@ -1,7 +1,7 @@
 ## Installation
 
 ```shell
-git clone git@github.com:juce-framework/JUCE.git
+git submodule add git@github.com:juce-framework/JUCE.git
 ```
 
 ## Build
