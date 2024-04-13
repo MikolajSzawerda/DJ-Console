@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 
 add_subdirectory(libs/JUCE)
 
-
+include_directories(libs/JUCE)
 
 juce_add_gui_app(${PROJECT_NAME})
 
