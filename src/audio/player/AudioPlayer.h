@@ -50,6 +50,12 @@ public:
         }
 
         transportSource.getNextAudioBlock(bufferToFill);
+
+        if (transportSource.hasStreamFinished() && loopCurrentSong)
+        {
+            transportSource.setPosition(0);
+            play();
+        }
     }
 
     void changeListenerCallback(juce::ChangeBroadcaster *source) override {
@@ -60,10 +66,15 @@ public:
         transportSource.setGain(newGain);
     }
 
+    void setLooping(bool shouldLoop) {
+        loopCurrentSong = shouldLoop;
+    }
+
 private:
     juce::AudioFormatManager formatManager;
     std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
     juce::AudioTransportSource transportSource;
+    bool loopCurrentSong = false;
 };
 
 #endif // DJ_CONSOLE_AUDIOPLAYER_H

@@ -14,6 +14,7 @@ public:
         addOpenButton();
         addPlayButton();
         addVolumeSlider();
+        addLoopButton();
         addLabel();
     }
 
@@ -28,6 +29,7 @@ public:
     void releaseResources() { player.releaseResources(); }
 
 private:
+
     void addOpenButton() {
         addAndMakeVisible(&openButton);
         openButton.setButtonText("Open...");
@@ -36,7 +38,6 @@ private:
         openButton.onClick = [this] { openButtonClicked(); };
 
     }
-
     void addPlayButton() {
         playButton.setButtonText("Play");
         playButton.setColour(juce::TextButton::buttonColourId,
@@ -47,7 +48,7 @@ private:
     }
 
      void addVolumeSlider() {
-         volumeSlider.setRange(0.0, 2.0);  // Range between 0 (min) and 1 (max)
+         volumeSlider.setRange(0.0, 2.0);
          volumeSlider.setSliderStyle(juce::Slider::LinearHorizontal);
          volumeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
          volumeSlider.setValue(1.0);
@@ -56,8 +57,26 @@ private:
          addAndMakeVisible(volumeSlider);
      }
 
-     void trackVolumeChanged() {
-        player.setGain((float) volumeSlider.getValue() * 4);
+    void addLoopButton() {
+        loopButton.setButtonText("Loop");
+        loopButton.setColour(juce::TextButton::buttonColourId,
+                             juce::Colours::blue);
+        loopButton.onClick = [this] { loopButtonClicked(); };
+
+        addAndMakeVisible(&loopButton);
+    }
+
+    void loopButtonClicked() {
+        isAudioLooping = !isAudioLooping;
+        player.setLooping(isAudioLooping);
+
+        if (isAudioLooping) {
+            loopButton.setColour(juce::TextButton::buttonColourId,
+                                 juce::Colours::red);
+        } else {
+            loopButton.setColour(juce::TextButton::buttonColourId,
+                                 juce::Colours::blue);
+        }
     }
 
      void addLabel() {
@@ -68,11 +87,15 @@ private:
          addAndMakeVisible(&label);
      }
 
-    enum TransportState {
+    void trackVolumeChanged() {
+        player.setGain((float) volumeSlider.getValue() * 4);
+    }
+
+    enum AudioState {
         Stopped, Playing
     };
 
-    void changeState(TransportState newState) {
+    void changeState(AudioState newState) {
         if (state != newState) {
             state = newState;
 
@@ -95,11 +118,17 @@ private:
 
         label.setBounds(area.removeFromTop(BUTTON_HEIGHT));
         area.removeFromTop(10);
+
         openButton.setBounds(area.removeFromTop(BUTTON_HEIGHT));
         area.removeFromTop(10);
+
         playButton.setBounds(area.removeFromTop(BUTTON_HEIGHT));
         area.removeFromTop(10);
+
         volumeSlider.setBounds(area.removeFromTop(BUTTON_HEIGHT));
+        area.removeFromTop(10);
+
+        loopButton.setBounds(area.removeFromTop(BUTTON_HEIGHT));
         area.removeFromTop(10);
     }
 
@@ -136,10 +165,12 @@ private:
     juce::Label label;
     juce::TextButton openButton;
     juce::TextButton playButton;
+    juce::TextButton loopButton;
     juce::Slider volumeSlider;
     std::unique_ptr<juce::FileChooser> chooser;
-    TransportState state;
+    AudioState state;
     AudioPlayer player;
+    bool isAudioLooping = false;
 };
 
 #endif // DJ_CONSOLE_TRACK_H
