@@ -1,4 +1,11 @@
-target_sources(${PROJECT_NAME} PRIVATE DJConsole.cpp ui/windows/MainWindow.h ui/components/MainComponent.h)
+target_sources(${PROJECT_NAME}
+        PRIVATE
+        DJConsole.cpp
+        ui/windows/MainWindow.h
+        ui/components/MainComponent.h
+        ui/components/Track.h
+        audio/player/AudioPlayer.h
+)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         juce_audio_basics

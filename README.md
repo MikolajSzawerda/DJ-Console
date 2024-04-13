@@ -1,7 +1,7 @@
 ## Installation
 
 ```shell
-git submodule add git@github.com:juce-framework/JUCE.git
+git submodule update --init
 ```
 
 ## Build
