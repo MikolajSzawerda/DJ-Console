@@ -5,6 +5,9 @@ target_sources(${PROJECT_NAME}
         ui/components/MainComponent.h
         ui/components/Track.h
         audio/player/AudioPlayer.h
+        Song.h
+        Playlist.h
+        Playlist.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE

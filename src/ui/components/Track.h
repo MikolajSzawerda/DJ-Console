@@ -15,6 +15,8 @@ public:
         addPlayButton();
         addVolumeSlider();
         addLoopButton();
+        addPrevButton();
+        addNextButton();
         addLabel();
     }
 
@@ -29,7 +31,6 @@ public:
     void releaseResources() { player.releaseResources(); }
 
 private:
-
     void addOpenButton() {
         addAndMakeVisible(&openButton);
         openButton.setButtonText("Open...");
@@ -64,6 +65,24 @@ private:
         loopButton.onClick = [this] { loopButtonClicked(); };
 
         addAndMakeVisible(&loopButton);
+    }
+
+    void addPrevButton() {
+        prevButton.setButtonText("<");
+        prevButton.setColour(juce::TextButton::buttonColourId,
+                             juce::Colours::blue);
+        prevButton.onClick = [this] { player.loadAndPlayPreviousSong(); };
+
+        addAndMakeVisible(&prevButton);
+    }
+
+    void addNextButton() {
+        nextButton.setButtonText(">");
+        nextButton.setColour(juce::TextButton::buttonColourId,
+                             juce::Colours::blue);
+        nextButton.onClick = [this] { player.loadAndPlayNextSong(); };
+
+        addAndMakeVisible(&nextButton);
     }
 
     void loopButtonClicked() {
@@ -130,6 +149,16 @@ private:
 
         loopButton.setBounds(area.removeFromTop(BUTTON_HEIGHT));
         area.removeFromTop(10);
+
+        int margin = 10;
+        auto buttonWidth = (area.getWidth() - margin) / 2;
+        auto buttonArea = area.withHeight(BUTTON_HEIGHT);
+
+        prevButton.setBounds(buttonArea.removeFromLeft(buttonWidth));
+        buttonArea.removeFromLeft(margin);
+        nextButton.setBounds(buttonArea.removeFromLeft(buttonWidth));
+
+        area.removeFromTop(10);
     }
 
     void openButtonClicked() {
@@ -166,6 +195,8 @@ private:
     juce::TextButton openButton;
     juce::TextButton playButton;
     juce::TextButton loopButton;
+    juce::TextButton prevButton;
+    juce::TextButton nextButton;
     juce::Slider volumeSlider;
     std::unique_ptr<juce::FileChooser> chooser;
     AudioState state;
