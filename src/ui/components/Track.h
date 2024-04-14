@@ -3,10 +3,12 @@
 #define DJ_CONSOLE_TRACK_H
 
 #include "../../audio/player/AudioPlayer.h"
+#include "PlaylistViewModel.h"
 #include <juce_audio_utils/juce_audio_utils.h>
 #include <iostream>
 
 #define BUTTON_HEIGHT 30
+
 
 class Track : public juce::GroupComponent {
 public:
@@ -15,7 +17,10 @@ public:
         addPlayButton();
         addVolumeSlider();
         addLoopButton();
+        addPrevButton();
+        addNextButton();
         addLabel();
+        addPlaylistView();
     }
 
     void getNextAudioBlock(const juce::AudioSourceChannelInfo &bufferToFill) {
@@ -29,7 +34,6 @@ public:
     void releaseResources() { player.releaseResources(); }
 
 private:
-
     void addOpenButton() {
         addAndMakeVisible(&openButton);
         openButton.setButtonText("Open...");
@@ -66,6 +70,24 @@ private:
         addAndMakeVisible(&loopButton);
     }
 
+    void addPrevButton() {
+        prevButton.setButtonText("<");
+        prevButton.setColour(juce::TextButton::buttonColourId,
+                             juce::Colours::blue);
+        prevButton.onClick = [this] { player.loadAndPlayPreviousSong(); };
+
+        addAndMakeVisible(&prevButton);
+    }
+
+    void addNextButton() {
+        nextButton.setButtonText(">");
+        nextButton.setColour(juce::TextButton::buttonColourId,
+                             juce::Colours::blue);
+        nextButton.onClick = [this] { player.loadAndPlayNextSong(); };
+
+        addAndMakeVisible(&nextButton);
+    }
+
     void loopButtonClicked() {
         isAudioLooping = !isAudioLooping;
         player.setLooping(isAudioLooping);
@@ -86,6 +108,11 @@ private:
 
          addAndMakeVisible(&label);
      }
+
+    void addPlaylistView() {
+        playlistView.setModel(&playlistViewModel);
+        addAndMakeVisible(playlistView);
+    }
 
     void trackVolumeChanged() {
         player.setGain((float) volumeSlider.getValue() * 4);
@@ -130,6 +157,18 @@ private:
 
         loopButton.setBounds(area.removeFromTop(BUTTON_HEIGHT));
         area.removeFromTop(10);
+
+        int margin = 10;
+        auto buttonWidth = (area.getWidth() - margin) / 2;
+        auto buttonArea = area.withHeight(BUTTON_HEIGHT);
+
+        prevButton.setBounds(buttonArea.removeFromLeft(buttonWidth));
+        buttonArea.removeFromLeft(margin);
+        nextButton.setBounds(buttonArea.removeFromLeft(buttonWidth));
+
+        area.removeFromTop(BUTTON_HEIGHT + 10);
+
+        playlistView.setBounds(area.removeFromTop(300));
     }
 
     void openButtonClicked() {
@@ -146,6 +185,8 @@ private:
                     if (file != juce::File{}) {
                         label.setText(file.getFileName(), juce::dontSendNotification);
                         player.loadFile(file);
+                        playlistViewModel.addSong(file.getFileName().toStdString());
+                        playlistView.updateContent();
                     }
                 });
     }
@@ -166,8 +207,13 @@ private:
     juce::TextButton openButton;
     juce::TextButton playButton;
     juce::TextButton loopButton;
+    juce::TextButton prevButton;
+    juce::TextButton nextButton;
     juce::Slider volumeSlider;
+    juce::ListBox playlistView;
     std::unique_ptr<juce::FileChooser> chooser;
+
+    PlaylistViewModel playlistViewModel;
     AudioState state;
     AudioPlayer player;
     bool isAudioLooping = false;

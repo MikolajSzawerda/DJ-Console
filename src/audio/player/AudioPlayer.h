@@ -8,53 +8,74 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 
 #include <utility>
+#include "../../Playlist.h"
+#include "../../Song.h"
 
 class AudioPlayer : public juce::ChangeListener {
 public:
     AudioPlayer() {
         formatManager.registerBasicFormats(); // Register formats like WAV, MP3
-        transportSource.addChangeListener(this);
+        audioSource.addChangeListener(this);
+        playlist = std::make_unique<Playlist>(Playlist());
+        hasAnySourceLoaded = false;
+        shouldLoopSong = false;
     }
 
-    void releaseResources() { transportSource.releaseResources(); }
+    void releaseResources() { audioSource.releaseResources(); }
 
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate) {
-        transportSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
+        audioSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
     }
 
     void loadFile(const juce::File &audioFile) {
         auto *reader = formatManager.createReaderFor(audioFile);
         if (reader != nullptr) {
-            std::unique_ptr<juce::AudioFormatReaderSource> newSource(new juce::AudioFormatReaderSource(reader, true));
-            transportSource.setSource(newSource.get(), 0, nullptr, reader->sampleRate);
-            readerSource = std::move(newSource);
+            auto song = std::make_shared<Song>(new juce::AudioFormatReaderSource(reader, true), reader->sampleRate);
+            playlist->addSong(song);
+
+            if (!hasAnySourceLoaded) {
+                playlist->next().value()->load(audioSource);
+                hasAnySourceLoaded = true;
+            }
         }
     }
 
     void play() {
-        if (!transportSource.isPlaying()) {
-            transportSource.start();
+        if (!audioSource.isPlaying()) {
+            audioSource.start();
         }
     }
 
     void stop() {
-        if (transportSource.isPlaying()) {
-            transportSource.stop();
+        if (audioSource.isPlaying()) {
+            audioSource.stop();
         }
     }
 
+    void loadAndPlayNextSong() {
+        auto nextSong = playlist->next();
+        loadAndPlaySong(nextSong);
+    }
+
+    void loadAndPlayPreviousSong() {
+        auto prevSong = playlist->previous();
+        loadAndPlaySong(prevSong);
+    }
+
     void getNextAudioBlock(const juce::AudioSourceChannelInfo &bufferToFill) {
-        if (readerSource == nullptr) {
+        if (!hasAnySourceLoaded) {
             bufferToFill.clearActiveBufferRegion();
             return;
         }
 
-        transportSource.getNextAudioBlock(bufferToFill);
+        audioSource.getNextAudioBlock(bufferToFill);
 
-        if (transportSource.hasStreamFinished() && loopCurrentSong)
-        {
-            transportSource.setPosition(0);
-            play();
+        if (audioSource.hasStreamFinished()) {
+            if (shouldLoopSong) {
+                loadAndPlaySong(playlist->current());
+            } else {
+                loadAndPlayNextSong();
+            }
         }
     }
 
@@ -63,18 +84,28 @@ public:
     }
 
     void setGain(float newGain) {
-        transportSource.setGain(newGain);
+        audioSource.setGain(newGain);
     }
 
     void setLooping(bool shouldLoop) {
-        loopCurrentSong = shouldLoop;
+        shouldLoopSong = shouldLoop;
     }
 
 private:
+    void loadAndPlaySong(std::optional<std::shared_ptr<Song>> song) {
+        if (song.has_value()) {
+            song.value()->load(audioSource);
+            play();
+        }
+    }
+
+    bool hasAnySourceLoaded;
+    bool shouldLoopSong;
+
+    std::unique_ptr<Playlist> playlist;
+
     juce::AudioFormatManager formatManager;
-    std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
-    juce::AudioTransportSource transportSource;
-    bool loopCurrentSong = false;
+    juce::AudioTransportSource audioSource;
 };
 
 #endif // DJ_CONSOLE_AUDIOPLAYER_H
