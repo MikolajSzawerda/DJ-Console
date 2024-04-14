@@ -3,10 +3,12 @@
 #define DJ_CONSOLE_TRACK_H
 
 #include "../../audio/player/AudioPlayer.h"
+#include "PlaylistViewModel.h"
 #include <juce_audio_utils/juce_audio_utils.h>
 #include <iostream>
 
 #define BUTTON_HEIGHT 30
+
 
 class Track : public juce::GroupComponent {
 public:
@@ -18,6 +20,7 @@ public:
         addPrevButton();
         addNextButton();
         addLabel();
+        addPlaylistView();
     }
 
     void getNextAudioBlock(const juce::AudioSourceChannelInfo &bufferToFill) {
@@ -106,6 +109,11 @@ private:
          addAndMakeVisible(&label);
      }
 
+    void addPlaylistView() {
+        playlistView.setModel(&playlistViewModel);
+        addAndMakeVisible(playlistView);
+    }
+
     void trackVolumeChanged() {
         player.setGain((float) volumeSlider.getValue() * 4);
     }
@@ -158,7 +166,9 @@ private:
         buttonArea.removeFromLeft(margin);
         nextButton.setBounds(buttonArea.removeFromLeft(buttonWidth));
 
-        area.removeFromTop(10);
+        area.removeFromTop(BUTTON_HEIGHT + 10);
+
+        playlistView.setBounds(area.removeFromTop(300));
     }
 
     void openButtonClicked() {
@@ -175,6 +185,8 @@ private:
                     if (file != juce::File{}) {
                         label.setText(file.getFileName(), juce::dontSendNotification);
                         player.loadFile(file);
+                        playlistViewModel.addSong(file.getFileName().toStdString());
+                        playlistView.updateContent();
                     }
                 });
     }
@@ -198,7 +210,10 @@ private:
     juce::TextButton prevButton;
     juce::TextButton nextButton;
     juce::Slider volumeSlider;
+    juce::ListBox playlistView;
     std::unique_ptr<juce::FileChooser> chooser;
+
+    PlaylistViewModel playlistViewModel;
     AudioState state;
     AudioPlayer player;
     bool isAudioLooping = false;

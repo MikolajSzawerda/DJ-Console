@@ -4,6 +4,7 @@ target_sources(${PROJECT_NAME}
         ui/windows/MainWindow.h
         ui/components/MainComponent.h
         ui/components/Track.h
+        ui/components/PlaylistViewModel.h
         audio/player/AudioPlayer.h
         Song.h
         Playlist.h
