@@ -18,7 +18,7 @@ public:
     }
 
     MainComponent() : tracks(initTracks()) {
-        setSize(600, 400);
+        setSize(1024, 576);
         for (auto &t: tracks) {
             addAndMakeVisible(t.get());
         }

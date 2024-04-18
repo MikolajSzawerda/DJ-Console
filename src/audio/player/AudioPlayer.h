@@ -11,7 +11,7 @@
 #include "../../Playlist.h"
 #include "../../Song.h"
 
-class AudioPlayer : public juce::ChangeListener {
+class AudioPlayer : public juce::ChangeListener, public juce::ActionBroadcaster {
 public:
     AudioPlayer() {
         formatManager.registerBasicFormats(); // Register formats like WAV, MP3
@@ -55,6 +55,10 @@ public:
     void loadAndPlayNextSong() {
         auto nextSong = playlist->next();
         loadAndPlaySong(nextSong);
+
+        if (!nextSong.has_value()) {
+            sendActionMessage("playlist_end");
+        }
     }
 
     void loadAndPlayPreviousSong() {
@@ -84,11 +88,26 @@ public:
     }
 
     void setGain(float newGain) {
+        gain = newGain;
         audioSource.setGain(newGain);
     }
 
     void setLooping(bool shouldLoop) {
         shouldLoopSong = shouldLoop;
+    }
+
+    void mute() {
+        if (!isMuted) {
+            audioSource.setGain(0);
+            isMuted = !isMuted;
+        }
+    }
+
+    void unmute() {
+        if (isMuted) {
+            audioSource.setGain(gain);
+            isMuted = !isMuted;
+        }
     }
 
 private:
@@ -101,6 +120,8 @@ private:
 
     bool hasAnySourceLoaded;
     bool shouldLoopSong;
+    bool isMuted;
+    float gain = 1.0;
 
     std::unique_ptr<Playlist> playlist;
 

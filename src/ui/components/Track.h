@@ -10,17 +10,20 @@
 #define BUTTON_HEIGHT 30
 
 
-class Track : public juce::GroupComponent {
+class Track : public juce::GroupComponent, public juce::ActionListener {
 public:
     Track(const juce::String &componentName, const juce::String &labelText) : GroupComponent(componentName, labelText) {
         addOpenButton();
         addPlayButton();
         addVolumeSlider();
         addLoopButton();
+        addMuteButton();
         addPrevButton();
         addNextButton();
         addLabel();
         addPlaylistView();
+
+        player.addActionListener(this);
     }
 
     void getNextAudioBlock(const juce::AudioSourceChannelInfo &bufferToFill) {
@@ -32,6 +35,13 @@ public:
     }
 
     void releaseResources() { player.releaseResources(); }
+
+    void actionListenerCallback(const juce::String& message) override
+    {
+        if (message == "playlist_end") {
+            changeState(Stopped);
+        }
+    }
 
 private:
     void addOpenButton() {
@@ -70,6 +80,15 @@ private:
         addAndMakeVisible(&loopButton);
     }
 
+    void addMuteButton() {
+        muteButton.setButtonText("Mute");
+        muteButton.setColour(juce::TextButton::buttonColourId,
+                             juce::Colours::blue);
+        muteButton.onClick = [this] { muteButtonClicked(); };
+
+        addAndMakeVisible(&muteButton);
+    }
+
     void addPrevButton() {
         prevButton.setButtonText("<");
         prevButton.setColour(juce::TextButton::buttonColourId,
@@ -92,13 +111,21 @@ private:
         isAudioLooping = !isAudioLooping;
         player.setLooping(isAudioLooping);
 
-        if (isAudioLooping) {
-            loopButton.setColour(juce::TextButton::buttonColourId,
-                                 juce::Colours::red);
+        auto colour = isAudioLooping ? juce::Colours::red : juce::Colours::blue;
+        loopButton.setColour(juce::TextButton::buttonColourId, colour);
+    }
+
+    void muteButtonClicked() {
+        if (isAudioMuted) {
+            player.unmute();
         } else {
-            loopButton.setColour(juce::TextButton::buttonColourId,
-                                 juce::Colours::blue);
+            player.mute();
         }
+
+        isAudioMuted = !isAudioMuted;
+
+        auto colour = isAudioMuted ? juce::Colours::red : juce::Colours::blue;
+        muteButton.setColour(juce::TextButton::buttonColourId, colour);
     }
 
      void addLabel() {
@@ -155,15 +182,22 @@ private:
         volumeSlider.setBounds(area.removeFromTop(BUTTON_HEIGHT));
         area.removeFromTop(10);
 
-        loopButton.setBounds(area.removeFromTop(BUTTON_HEIGHT));
-        area.removeFromTop(10);
+        int marginLoopMute = 10;
+        auto buttonLoopMuteWidth = (area.getWidth() - marginLoopMute) / 2;
+        auto buttonLoopMuteArea = area.withHeight(BUTTON_HEIGHT);
 
-        int margin = 10;
-        auto buttonWidth = (area.getWidth() - margin) / 2;
+        loopButton.setBounds(buttonLoopMuteArea.removeFromLeft(buttonLoopMuteWidth));
+        buttonLoopMuteArea.removeFromLeft(marginLoopMute);
+        muteButton.setBounds(buttonLoopMuteArea.removeFromLeft(buttonLoopMuteWidth));
+
+        area.removeFromTop(BUTTON_HEIGHT + 10);
+
+        int marginPrevNext = 10;
+        auto buttonWidth = (area.getWidth() - marginPrevNext) / 2;
         auto buttonArea = area.withHeight(BUTTON_HEIGHT);
 
         prevButton.setBounds(buttonArea.removeFromLeft(buttonWidth));
-        buttonArea.removeFromLeft(margin);
+        buttonArea.removeFromLeft(marginPrevNext);
         nextButton.setBounds(buttonArea.removeFromLeft(buttonWidth));
 
         area.removeFromTop(BUTTON_HEIGHT + 10);
@@ -209,6 +243,7 @@ private:
     juce::TextButton loopButton;
     juce::TextButton prevButton;
     juce::TextButton nextButton;
+    juce::TextButton muteButton;
     juce::Slider volumeSlider;
     juce::ListBox playlistView;
     std::unique_ptr<juce::FileChooser> chooser;
@@ -216,7 +251,9 @@ private:
     PlaylistViewModel playlistViewModel;
     AudioState state;
     AudioPlayer player;
+
     bool isAudioLooping = false;
+    bool isAudioMuted = false;
 };
 
 #endif // DJ_CONSOLE_TRACK_H
