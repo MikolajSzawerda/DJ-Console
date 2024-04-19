@@ -10,3 +10,4 @@ include_directories(libs/JUCE)
 juce_add_gui_app(${PROJECT_NAME})
 
 add_subdirectory(src)
+add_subdirectory(test)
