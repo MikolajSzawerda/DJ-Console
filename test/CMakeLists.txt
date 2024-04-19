@@ -19,9 +19,11 @@ include(GoogleTest)
 add_executable(
         dj_console_tests
         test_Playlist.cpp
+        testAudioPlayer.cpp
         ../src/Playlist.h
         ../src/Playlist.cpp
         ../src/Song.h
+        ../src/audio/player/AudioPlayer.h
 )
 target_link_libraries(dj_console_tests
         PRIVATE
@@ -33,5 +35,6 @@ target_compile_definitions(dj_console_tests
         PRIVATE
         JUCE_WEB_BROWSER=0
         JUCE_USE_CURL=0
+        STUB_FILE="${CMAKE_CURRENT_SOURCE_DIR}/stubs/stub.mp3"
 )
 gtest_discover_tests(dj_console_tests)
