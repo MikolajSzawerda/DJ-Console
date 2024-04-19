@@ -1,3 +1,7 @@
+# DjConsole
+
+![](screenshot.png)
+
 ## Installation
 
 ```shell
