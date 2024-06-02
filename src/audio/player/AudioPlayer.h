@@ -84,7 +84,7 @@ class AudioPlayer : public juce::ChangeListener, public juce::ActionBroadcaster 
         }
     }
 
-    void changeListenerCallback(juce::ChangeBroadcaster *source) override {
+    void changeListenerCallback(juce::ChangeBroadcaster *source __attribute__((unused))) override {
         // Handle transport source changes, if needed
     }
 

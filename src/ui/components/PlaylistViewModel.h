@@ -11,7 +11,7 @@ class PlaylistViewModel : public juce::ListBoxModel {
    public:
     int getNumRows() override { return (int)songNames.size(); }
 
-    void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override {
+    void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected __attribute__((unused))) override {
         g.setColour(juce::Colours::white);
         g.drawText(songNames[rowNumber], 0, 0, width, height, juce::Justification::centredLeft, true);
     }

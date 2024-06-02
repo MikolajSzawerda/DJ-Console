@@ -23,7 +23,7 @@ std::optional<std::shared_ptr<Song>> Playlist::next() {
         return std::nullopt;
     }
 
-    if (currentSongIdx + 1 >= playlist.size()) {
+    if ((size_t) currentSongIdx + 1 >= playlist.size()) {
         return std::nullopt;
     }
 

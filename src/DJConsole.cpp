@@ -4,7 +4,7 @@
 
 class DJConsole : public juce::JUCEApplication {
    public:
-    void initialise(const juce::String &commandLineParameters) override {
+    void initialise(const juce::String &commandLineParameters __attribute__((unused))) override {
         mainWindow = std::make_unique<MainWindow>(getApplicationName());
     }
     const juce::String getApplicationName() override { return juce::String("DJConsole"); }
