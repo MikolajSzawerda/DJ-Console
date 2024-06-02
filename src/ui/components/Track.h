@@ -22,6 +22,7 @@ class Track : public juce::GroupComponent, public juce::ActionListener, public j
         addPrevButton();
         addNextButton();
         addTempoLabel();
+        addDelayButton();
         addLabel();
         addPlaylistView();
 
@@ -91,6 +92,14 @@ class Track : public juce::GroupComponent, public juce::ActionListener, public j
         addAndMakeVisible(&loopButton);
     }
 
+    void addDelayButton() {
+        delayButton.setButtonText("Delay");
+        delayButton.setColour(juce::TextButton::buttonColourId, juce::Colours::blue);
+        delayButton.onClick = [this] { delayButtonClicked(); };
+
+        addAndMakeVisible(&delayButton);
+    }
+
     void addMuteButton() {
         muteButton.setButtonText("Mute");
         muteButton.setColour(juce::TextButton::buttonColourId, juce::Colours::blue);
@@ -121,6 +130,14 @@ class Track : public juce::GroupComponent, public juce::ActionListener, public j
 
         auto colour = isAudioLooping ? juce::Colours::red : juce::Colours::blue;
         loopButton.setColour(juce::TextButton::buttonColourId, colour);
+    }
+
+    void delayButtonClicked() {
+        isDelayActivated = !isDelayActivated;
+        player.setDelay(isDelayActivated);
+
+        auto colour = isDelayActivated ? juce::Colours::red : juce::Colours::blue;
+        delayButton.setColour(juce::TextButton::buttonColourId, colour);
     }
 
     void muteButtonClicked() {
@@ -224,6 +241,9 @@ class Track : public juce::GroupComponent, public juce::ActionListener, public j
 
         area.removeFromTop(BUTTON_HEIGHT + 10);
 
+        delayButton.setBounds(area.removeFromTop(BUTTON_HEIGHT));
+        area.removeFromTop(10);
+
         playlistView.setBounds(area.removeFromTop(300));
     }
 
@@ -281,6 +301,7 @@ class Track : public juce::GroupComponent, public juce::ActionListener, public j
     juce::TextButton openButton;
     juce::TextButton playButton;
     juce::TextButton loopButton;
+    juce::TextButton delayButton;
     juce::TextButton prevButton;
     juce::TextButton nextButton;
     juce::TextButton muteButton;
@@ -292,6 +313,7 @@ class Track : public juce::GroupComponent, public juce::ActionListener, public j
     AudioState state;
     AudioPlayer player;
 
+    bool isDelayActivated = false;
     bool isAudioLooping = false;
     bool isAudioMuted = false;
     aubio_tempo_t* tempo;

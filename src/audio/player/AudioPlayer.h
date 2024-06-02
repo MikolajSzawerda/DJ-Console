@@ -25,6 +25,10 @@ class AudioPlayer : public juce::ChangeListener, public juce::ActionBroadcaster 
     void releaseResources() { audioSource.releaseResources(); }
 
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate) {
+        delayBufferSize = static_cast<int>(sampleRate * delayTime);
+        delayBuffer.resize(delayBufferSize);
+        std::fill(delayBuffer.begin(), delayBuffer.end(), 0.0f);
+
         audioSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
     }
 
@@ -81,6 +85,10 @@ class AudioPlayer : public juce::ChangeListener, public juce::ActionBroadcaster 
 
         audioSource.getNextAudioBlock(bufferToFill);
 
+        if (isDelayEffectActivated) {
+            applyDelayEffect(bufferToFill);
+        }
+
         if (audioSource.hasStreamFinished()) {
             if (shouldLoopSong) {
                 loadAndPlaySong(playlist->current());
@@ -101,6 +109,15 @@ class AudioPlayer : public juce::ChangeListener, public juce::ActionBroadcaster 
 
     void setLooping(bool shouldLoop) { shouldLoopSong = shouldLoop; }
 
+    void setDelay(bool delay) {
+        isDelayEffectActivated = delay;
+
+        if (!delay) {
+            delayBufferIndex = 0;
+            std::fill(delayBuffer.begin(), delayBuffer.end(), 0.0f);
+        }
+    }
+
     void mute() {
         if (!isMuted) {
             audioSource.setGain(0);
@@ -115,7 +132,7 @@ class AudioPlayer : public juce::ChangeListener, public juce::ActionBroadcaster 
         }
     }
 
-   private:
+private:
     void loadAndPlaySong(std::optional<std::shared_ptr<Song>> song) {
         if (song.has_value()) {
             song.value()->load(audioSource);
@@ -123,10 +140,34 @@ class AudioPlayer : public juce::ChangeListener, public juce::ActionBroadcaster 
         }
     }
 
+    void applyDelayEffect(const juce::AudioSourceChannelInfo &bufferToFill) {
+        auto* leftChannel = bufferToFill.buffer->getWritePointer(0, bufferToFill.startSample);
+        auto* rightChannel = bufferToFill.buffer->getWritePointer(1, bufferToFill.startSample);
+
+        for (int sample = 0; sample < bufferToFill.numSamples; ++sample)
+        {
+            float delayedSample = delayBuffer[delayBufferIndex];
+
+            delayBuffer[delayBufferIndex] = leftChannel[sample] + (delayedSample * feedback);
+
+            leftChannel[sample] += delayedSample;
+            rightChannel[sample] += delayedSample;
+
+            delayBufferIndex = (delayBufferIndex + 1) % delayBufferSize;
+        }
+    }
+
     bool hasAnySourceLoaded;
     bool shouldLoopSong;
     bool isMuted;
+    bool isDelayEffectActivated;
     float gain = 1.0;
+
+    float delayTime = 0.5f;
+    float feedback = 0.5f;
+    std::vector<float> delayBuffer;
+    int delayBufferIndex = 0;
+    int delayBufferSize;
 
     std::unique_ptr<Playlist> playlist;
 
