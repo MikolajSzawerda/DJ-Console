@@ -7,22 +7,17 @@
 
 #include <juce_audio_utils/juce_audio_utils.h>
 
-
 class Song {
-public:
-    Song(juce::AudioFormatReaderSource* source, double sampleRate)
-        : source(source), sampleRate(sampleRate) {
-
-    }
+   public:
+    Song(juce::AudioFormatReaderSource* source, double sampleRate) : source(source), sampleRate(sampleRate) {}
 
     void load(juce::AudioTransportSource& transportSource) {
         transportSource.setSource(source.get(), 0, nullptr, sampleRate);
     }
 
-private:
+   private:
     std::unique_ptr<juce::AudioFormatReaderSource> source;
     double sampleRate;
 };
 
-
-#endif //DJ_CONSOLE_SONG_H
+#endif  // DJ_CONSOLE_SONG_H

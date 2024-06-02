@@ -4,10 +4,7 @@
 
 #include "Playlist.h"
 
-
-Playlist::Playlist() {
-    currentSongIdx = -1;
-}
+Playlist::Playlist() : currentSongIdx(-1) {}
 
 void Playlist::addSong(std::shared_ptr<Song> song) {
     playlist.push_back(song);
@@ -19,8 +16,7 @@ std::optional<std::shared_ptr<Song>> Playlist::current() {
     }
 
     return playlist[currentSongIdx];
-};
-
+}
 
 std::optional<std::shared_ptr<Song>> Playlist::next() {
     if (playlist.empty()) {
@@ -32,7 +28,7 @@ std::optional<std::shared_ptr<Song>> Playlist::next() {
     }
 
     return playlist[++currentSongIdx];
-};
+}
 
 std::optional<std::shared_ptr<Song>> Playlist::previous() {
     if (currentSongIdx <= 0 || playlist.empty()) {
