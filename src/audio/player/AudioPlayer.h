@@ -59,12 +59,18 @@ class AudioPlayer : public juce::ChangeListener, public juce::ActionBroadcaster 
 
         if (!nextSong.has_value()) {
             sendActionMessage("playlist_end");
+        } else {
+            sendActionMessage("next_song");
         }
     }
 
     void loadAndPlayPreviousSong() {
         auto prevSong = playlist->previous();
         loadAndPlaySong(prevSong);
+
+        if (prevSong.has_value()) {
+            sendActionMessage("prev_song");
+        }
     }
 
     void getNextAudioBlock(const juce::AudioSourceChannelInfo &bufferToFill) {

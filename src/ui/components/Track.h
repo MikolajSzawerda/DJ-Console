@@ -51,6 +51,10 @@ class Track : public juce::GroupComponent, public juce::ActionListener, public j
     void actionListenerCallback(const juce::String &message) override {
         if (message == "playlist_end") {
             changeState(Stopped);
+        } else if (message == "next_song") {
+            changeHighlightedPlaylistRow(++currentSongIdx);
+        } else if (message == "prev_song") {
+            changeHighlightedPlaylistRow(--currentSongIdx);
         }
     }
 
@@ -267,6 +271,11 @@ class Track : public juce::GroupComponent, public juce::ActionListener, public j
         del_fvec(tempo_out);
     }
 
+    void changeHighlightedPlaylistRow(int highlightedRowIdx) {
+        playlistViewModel.setCurrentSong(highlightedRowIdx);
+        playlistView.repaint();
+    }
+
     juce::Label label;
     juce::Label tempoLabel;
     juce::TextButton openButton;
@@ -288,6 +297,8 @@ class Track : public juce::GroupComponent, public juce::ActionListener, public j
     aubio_tempo_t* tempo;
     fvec_t* inputBuffer;
     std::atomic<int> bpm;
+
+    int currentSongIdx = 0;
 };
 
 #endif  // DJ_CONSOLE_TRACK_H
