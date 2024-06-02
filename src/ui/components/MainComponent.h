@@ -2,7 +2,7 @@
 #define DJ_CONSOLE_MAINCOMPONENT_H
 
 #include <juce_audio_utils/juce_audio_utils.h>
-
+#include <aubio/aubio.h>
 #include <utility>
 
 #include "Track.h"
@@ -27,7 +27,10 @@ class MainComponent : public juce::AudioAppComponent {
         setAudioChannels(0, 2);
     }
 
-    ~MainComponent() {}
+    ~MainComponent() {
+        aubio_cleanup();
+        shutdownAudio();
+    }
 
    private:
     void resized() override {

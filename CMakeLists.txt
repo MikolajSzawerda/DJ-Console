@@ -8,7 +8,11 @@ add_compile_options(-Wall -Wextra -pedantic -Werror)
 add_subdirectory(libs/JUCE)
 juce_add_gui_app(${PROJECT_NAME})
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(AUBIO REQUIRED aubio)
+
 target_compile_definitions(${PROJECT_NAME} PRIVATE JUCE_DISPLAY_SPLASH_SCREEN=0)
+target_link_libraries(${PROJECT_NAME} PRIVATE aubio)
 add_subdirectory(src)
 add_subdirectory(test)
 enable_testing()
@@ -37,3 +41,5 @@ add_custom_target(doc_doxygen
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Generating API documentation with Doxygen"
         VERBATIM)
+
+

@@ -8,6 +8,22 @@
 git submodule update --init
 ```
 
+### Aubio
+
+On Ubuntu/Debian:
+```shell
+sudo apt-get install aubio-tools libaubio-dev libaubio-doc
+```
+
+On macOS:
+```bash
+brew install aubio
+````
+
+On Windows:
+
+Download and extract the Aubio DDL from [aubio](https://aubio.org/download)
+
 ## Tooling
 
 ### ninja
@@ -21,11 +37,12 @@ On macOS:
 brew install ninja
 ````
 On Windows:
-```md
-Download and extract the Ninja executable from the official release page and add it to your PATH.
-```
 
-### Build
+Download and extract the Ninja executable from the official release page and add it to your PATH.
+
+
+
+## Build
 
 ### debug
 ```shell
