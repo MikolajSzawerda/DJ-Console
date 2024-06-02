@@ -8,10 +8,28 @@
 git submodule update --init
 ```
 
-## Build
+## Tooling
+
+### Build
 
 ```shell
 cmake . -B build
+```
+
+### Docs generation
+```shell
+ninja -C cmake-build-debug doc_doxygen
+```
+
+Docs will be placed in `cmake-build-debug/docs`
+
+### Autoformatting
+```shell
+ninja -C cmake-build-debug run-clang-format
+```
+### Testing
+```shell
+ninja -C cmake-build-debug test/test
 ```
 
 ## Opis projektu

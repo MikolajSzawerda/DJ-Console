@@ -10,6 +10,7 @@ juce_add_gui_app(${PROJECT_NAME})
 target_compile_definitions(${PROJECT_NAME} PRIVATE JUCE_DISPLAY_SPLASH_SCREEN=0)
 add_subdirectory(src)
 add_subdirectory(test)
+enable_testing()
 
 find_program(CLANG_FORMAT_EXE NAMES clang-format)
 if (CLANG_FORMAT_EXE)
@@ -21,3 +22,17 @@ if (CLANG_FORMAT_EXE)
 else ()
     message(WARNING "clang-format not found!")
 endif ()
+
+find_package(Doxygen REQUIRED)
+
+set(DOXYGEN_IN ${CMAKE_SOURCE_DIR}/docs/Doxyfile.in)
+set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+
+configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
+message("Doxygen build started")
+
+add_custom_target(doc_doxygen
+        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Generating API documentation with Doxygen"
+        VERBATIM)
