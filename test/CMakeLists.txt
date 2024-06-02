@@ -12,7 +12,6 @@ if(NOT googletest_POPULATED)
     add_subdirectory("${googletest_SOURCE_DIR}" "${googletest_BINARY_DIR}")
 endif()
 
-enable_testing()
 include(GoogleTest)
 
 
@@ -27,7 +26,8 @@ add_executable(
 )
 target_link_libraries(dj_console_tests
         PRIVATE
-        GTest::gtest_main
+        gtest
+        gtest_main
         juce_audio_utils
 )
 
@@ -38,3 +38,4 @@ target_compile_definitions(dj_console_tests
         STUB_FILE="${CMAKE_CURRENT_SOURCE_DIR}/stubs/stub.mp3"
 )
 gtest_discover_tests(dj_console_tests)
+add_test(NAME dj_console_tests COMMAND dj_console_tests)

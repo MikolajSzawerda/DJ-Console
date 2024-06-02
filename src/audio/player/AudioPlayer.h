@@ -8,13 +8,14 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 
 #include <utility>
+
 #include "../../Playlist.h"
 #include "../../Song.h"
 
 class AudioPlayer : public juce::ChangeListener, public juce::ActionBroadcaster {
-public:
+   public:
     AudioPlayer() {
-        formatManager.registerBasicFormats(); // Register formats like WAV, MP3
+        formatManager.registerBasicFormats();  // Register formats like WAV, MP3
         audioSource.addChangeListener(this);
         playlist = std::make_unique<Playlist>(Playlist());
         hasAnySourceLoaded = false;
@@ -92,9 +93,7 @@ public:
         audioSource.setGain(newGain);
     }
 
-    void setLooping(bool shouldLoop) {
-        shouldLoopSong = shouldLoop;
-    }
+    void setLooping(bool shouldLoop) { shouldLoopSong = shouldLoop; }
 
     void mute() {
         if (!isMuted) {
@@ -110,7 +109,7 @@ public:
         }
     }
 
-private:
+   private:
     void loadAndPlaySong(std::optional<std::shared_ptr<Song>> song) {
         if (song.has_value()) {
             song.value()->load(audioSource);
@@ -129,4 +128,4 @@ private:
     juce::AudioTransportSource audioSource;
 };
 
-#endif // DJ_CONSOLE_AUDIOPLAYER_H
+#endif  // DJ_CONSOLE_AUDIOPLAYER_H

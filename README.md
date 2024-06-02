@@ -8,10 +8,51 @@
 git submodule update --init
 ```
 
-## Build
+## Tooling
 
+### ninja
+
+On Ubuntu/Debian:
+```bash
+sudo apt-get install ninja-build
+````
+On macOS:
+```bash
+brew install ninja
+````
+On Windows:
+```md
+Download and extract the Ninja executable from the official release page and add it to your PATH.
+```
+
+### Build
+
+### debug
 ```shell
-cmake . -B build
+cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -S . -B cmake-build-debug
+ninja -C cmake-build-debug
+```
+
+### release
+```shell
+cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -S . -B cmake-build-release
+ninja -C cmake-build-release
+```
+
+### Docs generation
+```shell
+ninja -C cmake-build-debug doc_doxygen
+```
+
+Docs will be placed in `cmake-build-debug/docs`
+
+### Autoformatting
+```shell
+ninja -C cmake-build-debug run-clang-format
+```
+### Testing
+```shell
+ninja -C cmake-build-debug test/test
 ```
 
 ## Opis projektu

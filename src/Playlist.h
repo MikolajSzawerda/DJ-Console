@@ -7,19 +7,17 @@
 
 #include "Song.h"
 
-
 class Playlist {
-public:
+   public:
     Playlist();
     void addSong(std::shared_ptr<Song> song);
     std::optional<std::shared_ptr<Song>> current();
     std::optional<std::shared_ptr<Song>> next();
     std::optional<std::shared_ptr<Song>> previous();
 
-private:
+   private:
     std::vector<std::shared_ptr<Song>> playlist;
     int currentSongIdx;
 };
 
-
-#endif //DJ_CONSOLE_PLAYLIST_H
+#endif  // DJ_CONSOLE_PLAYLIST_H

@@ -2,16 +2,18 @@
 #define DJ_CONSOLE_MAINCOMPONENT_H
 
 #include <juce_audio_utils/juce_audio_utils.h>
-#include "Track.h"
+
 #include <utility>
 
+#include "Track.h"
+
 class MainComponent : public juce::AudioAppComponent {
-public:
+   public:
     std::vector<std::unique_ptr<Track>> initTracks() {
         std::vector<std::unique_ptr<Track>> tempTracks;
 
         for (int i = 0; i < TRACKS_NUMBER; i++) {
-            tempTracks.push_back(std::make_unique<Track>("", "Track " + std::to_string(i )));
+            tempTracks.push_back(std::make_unique<Track>("", "Track " + std::to_string(i)));
         }
 
         return tempTracks;
@@ -19,7 +21,7 @@ public:
 
     MainComponent() : tracks(initTracks()) {
         setSize(1024, 576);
-        for (auto &t: tracks) {
+        for (auto &t : tracks) {
             addAndMakeVisible(t.get());
         }
         setAudioChannels(0, 2);
@@ -27,8 +29,7 @@ public:
 
     ~MainComponent() {}
 
-private:
-
+   private:
     void resized() override {
         tracks.at(0)->setBounds(getLocalBounds().reduced(20));
         juce::FlexBox flexBox;
@@ -37,7 +38,7 @@ private:
         flexBox.alignContent = juce::FlexBox::AlignContent::stretch;
         flexBox.alignItems = juce::FlexBox::AlignItems::stretch;
 
-        for (auto &track: tracks) {
+        for (auto &track : tracks) {
             flexBox.items.add(juce::FlexItem(*track).withFlex(1));
         }
 
@@ -49,7 +50,7 @@ private:
                                             bufferToFill.buffer->getNumSamples());
         bufferToFill.clearActiveBufferRegion();
 
-        for (auto &track: tracks) {
+        for (auto &track : tracks) {
             tempBuffer.clear();
             juce::AudioSourceChannelInfo tempInfo(&tempBuffer, bufferToFill.startSample, bufferToFill.numSamples);
             track->getNextAudioBlock(tempInfo);
@@ -62,14 +63,13 @@ private:
     }
 
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override {
-        for (auto &t: tracks) {
+        for (auto &t : tracks) {
             t->prepareToPlay(samplesPerBlockExpected, sampleRate);
         }
     }
 
     void releaseResources() override {
-        std::for_each(tracks.begin(), tracks.end(),
-                      [](const std::unique_ptr<Track> &t) { t->releaseResources(); });
+        std::for_each(tracks.begin(), tracks.end(), [](const std::unique_ptr<Track> &t) { t->releaseResources(); });
     }
 
     std::vector<std::unique_ptr<Track>> tracks;
