@@ -12,7 +12,7 @@ git submodule update --init
 
 On Ubuntu/Debian:
 ```shell
-sudo apt-get install aubio-tools libaubio-dev libaubio-doc
+sudo apt-get install aubio-tools libaubio-dev libaubio-doc doxygen
 ```
 
 On macOS:
