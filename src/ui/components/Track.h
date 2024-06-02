@@ -5,13 +5,13 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 
 #include <iostream>
-
+#include <aubio/aubio.h>
 #include "../../audio/player/AudioPlayer.h"
 #include "PlaylistViewModel.h"
 
 #define BUTTON_HEIGHT 30
 
-class Track : public juce::GroupComponent, public juce::ActionListener {
+class Track : public juce::GroupComponent, public juce::ActionListener, public juce::Timer {
    public:
     Track(const juce::String &componentName, const juce::String &labelText) : GroupComponent(componentName, labelText) {
         addOpenButton();
@@ -21,19 +21,32 @@ class Track : public juce::GroupComponent, public juce::ActionListener {
         addMuteButton();
         addPrevButton();
         addNextButton();
+        addTempoLabel();
         addLabel();
         addPlaylistView();
 
         player.addActionListener(this);
+        startTimer(100);
     }
 
-    void getNextAudioBlock(const juce::AudioSourceChannelInfo &bufferToFill) { player.getNextAudioBlock(bufferToFill); }
+    void getNextAudioBlock(const juce::AudioSourceChannelInfo &bufferToFill) {
+        player.getNextAudioBlock(bufferToFill);
+        if(state == Playing){
+            trackTempo(bufferToFill);
+        }
+    }
 
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate) {
+        inputBuffer = new_fvec(samplesPerBlockExpected);
+        tempo = new_aubio_tempo("default", samplesPerBlockExpected, samplesPerBlockExpected, (uint_t) sampleRate);
         player.prepareToPlay(samplesPerBlockExpected, sampleRate);
+        aubio_tempo_set_silence(tempo, -2.0);
     }
 
-    void releaseResources() { player.releaseResources(); }
+    void releaseResources() {
+        del_aubio_tempo(tempo);
+        del_fvec(inputBuffer);
+        player.releaseResources(); }
 
     void actionListenerCallback(const juce::String &message) override {
         if (message == "playlist_end") {
@@ -127,12 +140,26 @@ class Track : public juce::GroupComponent, public juce::ActionListener {
         addAndMakeVisible(&label);
     }
 
+    void addTempoLabel(){
+        tempoLabel.setText("120 BPM", juce::dontSendNotification);
+        tempoLabel.setColour(juce::Label::backgroundColourId, juce::Colour(30, 30, 30));
+        tempoLabel.setColour(juce::Label::outlineColourId, juce::Colours::grey);
+        addAndMakeVisible(&tempoLabel);
+    }
+
+    void timerCallback() override
+    {
+        if(state == Playing){
+            tempoLabel.setText(std::to_string(bpm)+" BPM", juce::NotificationType::dontSendNotification);
+        }
+    }
+
     void addPlaylistView() {
         playlistView.setModel(&playlistViewModel);
         addAndMakeVisible(playlistView);
     }
 
-    void trackVolumeChanged() { player.setGain((float)volumeSlider.getValue() * 4); }
+    void trackVolumeChanged() { player.setGain((float)volumeSlider.getValue() * 2); }
 
     enum AudioState { Stopped, Playing };
 
@@ -168,6 +195,10 @@ class Track : public juce::GroupComponent, public juce::ActionListener {
 
         volumeSlider.setBounds(area.removeFromTop(BUTTON_HEIGHT));
         area.removeFromTop(10);
+
+        tempoLabel.setBounds(area.removeFromTop(BUTTON_HEIGHT));
+        area.removeFromTop(10);
+
 
         int marginLoopMute = 10;
         auto buttonLoopMuteWidth = (area.getWidth() - marginLoopMute) / 2;
@@ -220,7 +251,24 @@ class Track : public juce::GroupComponent, public juce::ActionListener {
         }
     }
 
+    void trackTempo(const juce::AudioSourceChannelInfo& bufferToFill)
+    {
+        const auto* channelData = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
+        for (int i = 0; i < bufferToFill.numSamples; ++i)
+        {
+            fvec_set_sample(inputBuffer, channelData[i], i);
+        }
+        fvec_t * tempo_out = new_fvec(2);
+        aubio_tempo_do(tempo, inputBuffer, tempo_out);
+        if (aubio_tempo_get_last(tempo)!=0)
+        {
+            bpm = (int) aubio_tempo_get_bpm(tempo);
+        }
+        del_fvec(tempo_out);
+    }
+
     juce::Label label;
+    juce::Label tempoLabel;
     juce::TextButton openButton;
     juce::TextButton playButton;
     juce::TextButton loopButton;
@@ -237,6 +285,9 @@ class Track : public juce::GroupComponent, public juce::ActionListener {
 
     bool isAudioLooping = false;
     bool isAudioMuted = false;
+    aubio_tempo_t* tempo;
+    fvec_t* inputBuffer;
+    std::atomic<int> bpm;
 };
 
 #endif  // DJ_CONSOLE_TRACK_H
