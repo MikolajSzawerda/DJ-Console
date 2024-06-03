@@ -86,7 +86,7 @@ class AudioPlayer : public juce::ChangeListener, public juce::ActionBroadcaster 
             bufferToFill.clearActiveBufferRegion();
             return;
         }
-        juce::Logger::outputDebugString("x " + std::to_string(playlist->currentSongIdx));
+
         audioSource.getNextAudioBlock(bufferToFill);
 
         if (isDelayEffectActivated) {
