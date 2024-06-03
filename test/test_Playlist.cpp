@@ -39,3 +39,24 @@ TEST(Playlist, NavigateThroughPlaylist) {
     ASSERT_EQ(playlist.current(), song2);
     ASSERT_EQ(playlist.previous(), song1);
 }
+
+TEST(Playlist, NavigateToFirstSong) {
+    // given
+    auto song1 = std::make_shared<Song>(nullptr, SAMPLE_RATE);
+    auto song2 = std::make_shared<Song>(nullptr, SAMPLE_RATE*2);
+    auto song3 = std::make_shared<Song>(nullptr, SAMPLE_RATE*3);
+    Playlist playlist;
+
+    playlist.addSong(song1);
+    playlist.addSong(song2);
+    playlist.addSong(song3);
+    playlist.next();
+    playlist.next();
+    playlist.next();
+
+    // when
+    playlist.first();
+
+    // then
+    ASSERT_EQ(playlist.current(), song1);
+}

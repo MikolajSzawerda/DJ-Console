@@ -6,7 +6,7 @@
 
 Playlist::Playlist() : currentSongIdx(-1) {}
 
-void Playlist::addSong(std::shared_ptr<Song> song) {
+void Playlist::addSong(const std::shared_ptr<Song>& song) {
     playlist.push_back(song);
 }
 
@@ -37,3 +37,13 @@ std::optional<std::shared_ptr<Song>> Playlist::previous() {
 
     return playlist[--currentSongIdx];
 }
+
+std::optional<std::shared_ptr<Song>> Playlist::first() {
+    if (currentSongIdx == -1) {
+        return std::nullopt;
+    }
+
+    currentSongIdx = 0;
+    return playlist[currentSongIdx];
+}
+

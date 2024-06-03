@@ -52,6 +52,7 @@ class Track : public juce::GroupComponent, public juce::ActionListener, public j
     void actionListenerCallback(const juce::String &message) override {
         if (message == "playlist_end") {
             changeState(Stopped);
+            changeHighlightedPlaylistRow(0);
         } else if (message == "next_song") {
             changeHighlightedPlaylistRow(++currentSongIdx);
         } else if (message == "prev_song") {
@@ -134,7 +135,7 @@ class Track : public juce::GroupComponent, public juce::ActionListener, public j
 
     void delayButtonClicked() {
         isDelayActivated = !isDelayActivated;
-        player.setDelay(isDelayActivated);
+        player.setDelayEffect(isDelayActivated);
 
         auto colour = isDelayActivated ? juce::Colours::red : juce::Colours::blue;
         delayButton.setColour(juce::TextButton::buttonColourId, colour);

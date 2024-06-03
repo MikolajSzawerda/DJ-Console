@@ -63,6 +63,10 @@ class AudioPlayer : public juce::ChangeListener, public juce::ActionBroadcaster 
 
         if (!nextSong.has_value()) {
             sendActionMessage("playlist_end");
+            auto firstSong = playlist->first();
+            if (firstSong.has_value()) {
+                firstSong->get()->load(audioSource);
+            }
         } else {
             sendActionMessage("next_song");
         }
@@ -82,7 +86,7 @@ class AudioPlayer : public juce::ChangeListener, public juce::ActionBroadcaster 
             bufferToFill.clearActiveBufferRegion();
             return;
         }
-
+        juce::Logger::outputDebugString("x " + std::to_string(playlist->currentSongIdx));
         audioSource.getNextAudioBlock(bufferToFill);
 
         if (isDelayEffectActivated) {
@@ -109,7 +113,7 @@ class AudioPlayer : public juce::ChangeListener, public juce::ActionBroadcaster 
 
     void setLooping(bool shouldLoop) { shouldLoopSong = shouldLoop; }
 
-    void setDelay(bool delay) {
+    void setDelayEffect(bool delay) {
         isDelayEffectActivated = delay;
 
         if (!delay) {
