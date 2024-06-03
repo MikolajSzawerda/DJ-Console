@@ -16,7 +16,7 @@ class Playlist {
     std::optional<std::shared_ptr<Song>> previous();
     std::optional<std::shared_ptr<Song>> first();
 
-//   private:
+   private:
     std::vector<std::shared_ptr<Song>> playlist;
     int currentSongIdx;
 };
