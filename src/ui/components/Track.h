@@ -17,6 +17,7 @@ class Track : public juce::GroupComponent, public juce::ActionListener, public j
         addOpenButton();
         addPlayButton();
         addVolumeSlider();
+        addPanSlider();
         addLoopButton();
         addMuteButton();
         addPrevButton();
@@ -84,6 +85,16 @@ class Track : public juce::GroupComponent, public juce::ActionListener, public j
         volumeSlider.onValueChange = [this]() { trackVolumeChanged(); };
 
         addAndMakeVisible(volumeSlider);
+    }
+
+    void addPanSlider() {
+        panSlider.setRange(-1.0, 1.0, 0.01);
+        panSlider.setValue(0.0);
+        addAndMakeVisible(panSlider);
+        panSlider.setSliderStyle(juce::Slider::RotaryHorizontalDrag);
+        panSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+        panSlider.onValueChange = [this]() { trackPanChanged(); };
+        addAndMakeVisible(panSlider);
     }
 
     void addLoopButton() {
@@ -183,6 +194,7 @@ class Track : public juce::GroupComponent, public juce::ActionListener, public j
     }
 
     void trackVolumeChanged() { player.setGain((float)volumeSlider.getValue() * 2); }
+    void trackPanChanged() { player.setPan((float) panSlider.getValue()); }
 
     enum AudioState { Stopped, Playing };
 
@@ -217,6 +229,9 @@ class Track : public juce::GroupComponent, public juce::ActionListener, public j
         area.removeFromTop(10);
 
         volumeSlider.setBounds(area.removeFromTop(BUTTON_HEIGHT));
+        area.removeFromTop(10);
+
+        panSlider.setBounds(area.removeFromTop(BUTTON_HEIGHT*2));
         area.removeFromTop(10);
 
         tempoLabel.setBounds(area.removeFromTop(BUTTON_HEIGHT));
@@ -308,6 +323,7 @@ class Track : public juce::GroupComponent, public juce::ActionListener, public j
     juce::TextButton nextButton;
     juce::TextButton muteButton;
     juce::Slider volumeSlider;
+    juce::Slider panSlider;
     juce::ListBox playlistView;
     std::unique_ptr<juce::FileChooser> chooser;
 

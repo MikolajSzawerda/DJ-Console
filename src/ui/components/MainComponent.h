@@ -21,6 +21,7 @@ class MainComponent : public juce::AudioAppComponent {
 
     MainComponent() : tracks(initTracks()) {
         setSize(1024, 576);
+        setAudioChannels(0, 2);
         for (auto &t : tracks) {
             addAndMakeVisible(t.get());
         }
