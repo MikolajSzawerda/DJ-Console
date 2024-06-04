@@ -53,6 +53,7 @@ class Track : public juce::GroupComponent, public juce::ActionListener, public j
         if (message == "playlist_end") {
             changeState(Stopped);
             changeHighlightedPlaylistRow(0);
+            currentSongIdx = 0;
         } else if (message == "next_song") {
             changeHighlightedPlaylistRow(++currentSongIdx);
         } else if (message == "prev_song") {
