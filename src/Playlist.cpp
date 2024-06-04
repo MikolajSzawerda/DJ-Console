@@ -47,3 +47,21 @@ std::optional<std::shared_ptr<Song>> Playlist::first() {
     return playlist[currentSongIdx];
 }
 
+std::optional<std::shared_ptr<Song>> Playlist::peekNext() {
+    if ((size_t) currentSongIdx + 1 >= playlist.size()) {
+        return std::nullopt;
+    }
+    if(currentSongIdx==-1 || playlist.size()==1){
+        return std::nullopt;
+    }
+    return playlist[currentSongIdx+1];
+}
+
+size_t Playlist::songsCount() {
+    return playlist.size();
+}
+size_t Playlist::songsLeft() {
+    return songsCount()-currentSongIdx;
+}
+
+

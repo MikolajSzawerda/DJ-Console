@@ -13,8 +13,11 @@ class Playlist {
     void addSong(const std::shared_ptr<Song>& song);
     std::optional<std::shared_ptr<Song>> current();
     std::optional<std::shared_ptr<Song>> next();
+    std::optional<std::shared_ptr<Song>> peekNext();
     std::optional<std::shared_ptr<Song>> previous();
     std::optional<std::shared_ptr<Song>> first();
+    size_t songsCount();
+    size_t songsLeft();
 
    private:
     std::vector<std::shared_ptr<Song>> playlist;
