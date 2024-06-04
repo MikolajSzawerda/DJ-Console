@@ -16,7 +16,7 @@ TEST(Playlist, AddSongToPlaylist) {
     Playlist playlist;
 
     // when
-    playlist.addSongcr(song);
+    playlist.addSong(song);
     playlist.next();
 
     // then
