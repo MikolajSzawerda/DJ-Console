@@ -120,10 +120,11 @@ class AudioPlayer : public juce::ChangeListener, public juce::ActionBroadcaster,
         }
 
         mixerSource.getNextAudioBlock(bufferToFill);
-
+        applyPanning(bufferToFill);
         if (isDelayEffectActivated) {
             applyDelayEffect(bufferToFill);
         }
+
 
         if (currentAudioSource().hasStreamFinished()) {
             if (shouldLoopSong) {
@@ -195,6 +196,11 @@ class AudioPlayer : public juce::ChangeListener, public juce::ActionBroadcaster,
         }
     }
 
+    void setPan(float newPan)
+    {
+        pan = newPan;
+    }
+
 private:
     void loadAndPlaySong(std::optional<std::shared_ptr<Song>> song) {
         if (song.has_value()) {
@@ -217,6 +223,17 @@ private:
             rightChannel[sample] += delayedSample;
 
             delayBufferIndex = (delayBufferIndex + 1) % delayBufferSize;
+        }
+    }
+
+    void applyPanning(const juce::AudioSourceChannelInfo &bufferToFill){
+        if (bufferToFill.buffer->getNumChannels() == 2)
+        {
+            float leftGain = 1.0f - pan;
+            float rightGain = pan;
+
+            bufferToFill.buffer->applyGain(0, bufferToFill.startSample, bufferToFill.numSamples, leftGain);
+            bufferToFill.buffer->applyGain(1, bufferToFill.startSample, bufferToFill.numSamples, rightGain);
         }
     }
 
@@ -301,6 +318,8 @@ private:
     float crossfadePosition = 0.0f;
     float crossfadeStep = 0.0f;
     float crossfadeDurationSeconds = 1.0f;
+    float pan=0.0f;
+
 };
 
 #endif  // DJ_CONSOLE_AUDIOPLAYER_H
